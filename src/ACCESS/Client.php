@@ -36,17 +36,20 @@ class Client{
     function version(){
         return self::VERSION;
     }
-    function APIkey($key){
+    function APIkey(){
         return $this->config['key'];
     }
-    function APIhash($string){
+    function APIhash(){
         return $this->config['hash'];
     }
-    function URL($url){
+    function URL(){
         return $this->config['url'];
     }
     function config($key){
         return isset($this->config[$key]) ? $this->config[$key] : null;
+    }
+    function configs(){
+        return $this->config;
     }
     
     
@@ -68,7 +71,7 @@ class Client{
         $Request = new Request($params,$this);
         $curl = curl_init();
         $curlopt = array(
-            CURLOPT_URL => $this->config['url'].'?'.$Request->urlStr(),
+            CURLOPT_URL => $this->config['url'],
             CURLOPT_USERAGENT => 'ACCESS API Call',
             CURLOPT_POST => true,
             CURLOPT_POSTFIELDS => $Request->getArray(),
@@ -76,13 +79,35 @@ class Client{
             CURLOPT_SSL_VERIFYHOST => false,
             CURLOPT_SSL_VERIFYPEER => false,
         );
+        if(in_array('getrequest',$params)){
+            $curlopt[CURLOPT_URL] = $this->config['url'].'?'.$Request->urlStr();
+            $curlopt[CURLOPT_POST] = false;
+            unset($curlopt[CURLOPT_POSTFIELDS]);
+        }
         if(defined('STDIN')){
             $curlopt[CURLOPT_VERBOSE] = true;
         }
         curl_setopt_array($curl, $curlopt);
+        $retvaluex = array();
         $respx = curl_exec($curl);
         if($respx !== false){
-            $retvaluex = strpos($respx,'{')!==false ? json_decode($respx,true) : (array)$respx;
+            $retvaluex = strpos($respx,'{')!==false 
+                ? json_decode($respx,true) 
+                : (array)$respx;
+        }
+        else{
+            if (curl_errno($curl)) { 
+               $retvaluex['error'] = curl_error($curl); 
+            } 
+        }
+        if(defined('ACCESS_API_DEBUG') && ACCESS_API_DEBUG==true)
+        {
+            $retvaluex['client'] = array(
+                'curl' => $curlopt,
+                'config' => $this->configs(),
+                'sent' => $Request->getArray(),
+                'query' => $Request->urlStr(),
+                );
         }
         curl_close($curl);
         return $retvaluex;

@@ -3,7 +3,7 @@
 namespace ACCESS;
 class Student{
     private $ID;
-    private $Request;
+    private $Request = array();
     
     function __construct($studid,$term='',$schoolyear=''){
         $this->ID = $studid;
@@ -109,5 +109,15 @@ class Student{
             'field' => 'studrp',
             'params' => $schedules,
             ]); 
+    }
+    
+    function register($data,$params=array()){
+        return array_merge($this->Request,$params,[
+            'action' => 'student',
+            'call' => 'register',
+            'field' => 'register',
+            'register' => substr(uniqid(''),0,7),
+            'params' => $data
+            ]);
     }
 }
