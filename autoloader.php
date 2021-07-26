@@ -1,5 +1,7 @@
 <?php
 
+require_once('config.php');
+
 function loadClass($className) {
     $fileName = '';
     $namespace = '';
@@ -18,7 +20,7 @@ function loadClass($className) {
     if (file_exists($fullFileName)) {
         require $fullFileName;
     } else {
-        echo 'Class "'.$className.'" does not exist.';
+        die('Class "'.$className.'" does not exist.');
     }
 }
 spl_autoload_register('loadClass'); // Registers the autoloader
