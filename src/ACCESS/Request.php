@@ -31,13 +31,14 @@ class Request{
         return $retvalue;
     }
     function encodeValues($values){
+        /* ##2021-07-26: leave it as an array
         if(is_array($values)){
             $val = $values;
             foreach($val as $i => $v){
                 $values[$i] = $this->encodeValues($v);
             }
             #$values = json_encode($values,JSON_FORCE_OBJECT); ##2021-07-26: leave it as an array
-        }
+        }*/
         return $values;
     }
     function urlStr(){
